@@ -45,7 +45,7 @@ def read_tcr_data( organism, contig_annotations_csvfile, consensus_annotations_c
         clonotype = l['raw_clonotype_id']
         if clonotype =='None':
             if l['productive'] not in [ 'None','False' ]:
-                assert l['productive'] == 'True'
+                assert l['productive'].upper() == 'TRUE' # NOTE: 2021-03-07 I edited this line as well.
                 #print 'clonotype==None: unproductive?',l['productive']
             continue
         if clonotype not in clonotype2barcodes:
@@ -70,7 +70,7 @@ def read_tcr_data( organism, contig_annotations_csvfile, consensus_annotations_c
     clonotype2tcrs = {}
 
     for l in lines:
-        if l['productive'] == 'True':
+        if l['productive'].upper() == 'TRUE': # NOTE: 2021-03-07 I edited this line to allow for both TRUE and True
             id = l['clonotype_id']
             if id not in clonotype2tcrs:
                 # dictionaries mapping from tcr to umi-count
@@ -176,7 +176,7 @@ def make_clones_file( organism, outfile, clonotype2tcrs, clonotype2barcodes ):
     outmap.close()
 
 
-    cmd = 'python {}/file_converter.py --input_format clones --output_format clones --input_file {} --output_file {}  --organism {} --clobber --epitope UNK_E --extra_fields {} '\
+    cmd = 'python2 {}/file_converter.py --input_format clones --output_format clones --input_file {} --output_file {}  --organism {} --clobber --epitope UNK_E --extra_fields {} '\
         .format( paths.path_to_scripts, tmpfile, outfile, organism, ' '.join(extra_fields) )
     print cmd
     system(cmd)

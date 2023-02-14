@@ -237,7 +237,7 @@ def run(cmd):
 
 
 if pair_seqs_file and ( force or not exists( parsed_seqs_file ) ):
-    cmd = 'python {}/read_pair_seqs.py {} {} {} {} --organism {} --infile {} --outfile {} -c > {}.log 2> {}.err'\
+    cmd = 'python2 {}/read_pair_seqs.py {} {} {} {} --organism {} --infile {} --outfile {} -c > {}.log 2> {}.err'\
           .format( path_to_scripts,
                    ' --make_fake_ids ' if make_fake_ids else '',
                    ' --make_fake_quals ' if make_fake_quals else '',
@@ -256,13 +256,13 @@ if parsed_seqs_file and ( force or not exists( clones_file ) ):
         noprobsarg = " "
     ## compute probs
     if force or not exists( probs_file ):
-        cmd = 'python {}/compute_probs.py --organism {}  --infile {} --outfile {} {}  -c --filter --add_masked_seqs > {}.log 2> {}.err'\
+        cmd = 'python2 {}/compute_probs.py --organism {}  --infile {} --outfile {} {}  -c --filter --add_masked_seqs > {}.log 2> {}.err'\
               .format( path_to_scripts, organism, parsed_seqs_file, probs_file, noprobsarg, probs_file, probs_file )
         run(cmd)
 
     ## find the clones
     if force or not exists( clones_file ) or extra_find_clones_args:
-        cmd = 'python {}/find_clones.py {} --organism {}  --infile {} --outfile {}  -c --min_quality_for_singletons {} > {}.log 2> {}.err'\
+        cmd = 'python2 {}/find_clones.py {} --organism {}  --infile {} --outfile {}  -c --min_quality_for_singletons {} > {}.log 2> {}.err'\
             .format( path_to_scripts, extra_find_clones_args if extra_find_clones_args else ' ',
                      organism, probs_file, clones_file, min_quality_for_singletons, clones_file, clones_file )
         run(cmd)
@@ -280,19 +280,19 @@ epitopes.sort()
 
 ## make a mouse table
 
-cmd = 'python {}/make_mouse_table.py --clones_file {} > {}_mmt.log 2> {}_mmt.err'\
+cmd = 'python2 {}/make_mouse_table.py --clones_file {} > {}_mmt.log 2> {}_mmt.err'\
       .format( path_to_scripts, clones_file, clones_file, clones_file )
 run(cmd)
 
 
 ## precompute some info on gene frequencies
-cmd = 'python {}/analyze_gene_frequencies.py --organism {}  --clones_file {} > {}_agf.log 2> {}_agf.err'\
+cmd = 'python2 {}/analyze_gene_frequencies.py --organism {}  --clones_file {} > {}_agf.log 2> {}_agf.err'\
       .format( path_to_scripts, organism, clones_file, clones_file, clones_file )
 run(cmd)
 
 
 ## make gene plots (entropy, relentropy, ami, covariation, pie charts of gene usage) and VJ pairings
-cmd = 'python {}/make_gene_plots.py {} --organism {}  --clones_file {} --use_color_gradients > {}_mgp.log 2> {}_mgp.err'\
+cmd = 'python2 {}/make_gene_plots.py {} --organism {}  --clones_file {} --use_color_gradients > {}_mgp.log 2> {}_mgp.err'\
     .format( path_to_scripts, ' --consistentfigcolors '*consistentfigcolors,
              organism, clones_file, clones_file, clones_file )
 run(cmd)
@@ -301,21 +301,21 @@ run(cmd)
 ## compute distances
 distfiles = glob('{}_*.dist'.format(clones_file[:-4]))
 
-cmd = 'python {}/compute_distances.py {} {} --organism {} --clones_file {} > {}_cd.log 2> {}_cd.err'\
+cmd = 'python2 {}/compute_distances.py {} {} --organism {} --clones_file {} > {}_cd.log 2> {}_cd.err'\
     .format( path_to_scripts, distance_params_args, ' --intrasubject_nbrdists '*intrasubject_nbrdists,
              organism, clones_file, clones_file, clones_file )
 if force or not distfiles: run(cmd)
 
 
 ## plot nbr-distance histograms
-cmd = 'python {}/plot_nbrdist_distributions.py --clones_file {} --nbrdist_percentiles 5 10 25 > {}_pnd.log 2> {}_pnd.err'\
+cmd = 'python2 {}/plot_nbrdist_distributions.py --clones_file {} --nbrdist_percentiles 5 10 25 > {}_pnd.log 2> {}_pnd.err'\
     .format( path_to_scripts, clones_file, clones_file, clones_file )
 run(cmd)
 
 ## compare with random tcrs
 random_nbrdists_file = '{}_random_nbrdists.tsv'.format(clones_file[:-4] )
 if not exists( random_nbrdists_file ):
-    cmd = 'python {}/random_tcr_distances.py {} {} --organism {} --clones_file {} > {}_rtd.log 2> {}_rtd.err'\
+    cmd = 'python2 {}/random_tcr_distances.py {} {} --organism {} --clones_file {} > {}_rtd.log 2> {}_rtd.err'\
           .format( path_to_scripts, constant_seed_args, distance_params_args, organism,
                    clones_file, clones_file, clones_file )
     run(cmd)
@@ -323,7 +323,7 @@ if not exists( random_nbrdists_file ):
 ## now read the output of the random nbrdists
 #assert exists( random_nbrdists_file ) ## tmp hacking
 
-cmd = 'python {}/read_random_tcr_distances.py --organism {} --clones_file {} > {}_rrtd.log 2> {}_rrtd.err'\
+cmd = 'python2 {}/read_random_tcr_distances.py --organism {} --clones_file {} > {}_rrtd.log 2> {}_rrtd.err'\
       .format( path_to_scripts, organism, clones_file, clones_file, clones_file )
 run(cmd)
 
@@ -331,24 +331,24 @@ run(cmd)
 ## analyze overlap
 #logfile = '{}_sharing.log'.format(clones_file[:-4])
 if force or True: #not exists( logfile ):
-    cmd = 'python {}/analyze_overlap_compute_simpsons.py --organism {} --clones_file {} > {}_aocs.log 2> {}_aocs.err'\
+    cmd = 'python2 {}/analyze_overlap_compute_simpsons.py --organism {} --clones_file {} > {}_aocs.log 2> {}_aocs.err'\
           .format( path_to_scripts, organism, clones_file, clones_file, clones_file )
     run(cmd)
 
 ## make overlap plot
-cmd = 'python {}/plot_sharing.py --organism {} --clones_file {} > {}_ps.log 2> {}_ps.err'\
+cmd = 'python2 {}/plot_sharing.py --organism {} --clones_file {} > {}_ps.log 2> {}_ps.err'\
     .format( path_to_scripts, organism, clones_file, clones_file, clones_file )
 run(cmd)
 
 
 ## make tall trees
-cmd = 'python {}/make_tall_trees.py {} --organism {} --color_scheme {} --clones_file {} --junction_bars > {}_mtt.log 2> {}_mtt.err'\
+cmd = 'python2 {}/make_tall_trees.py {} --organism {} --color_scheme {} --clones_file {} --junction_bars > {}_mtt.log 2> {}_mtt.err'\
       .format( path_to_scripts, constant_seed_args, organism, make_tall_trees_color_scheme,
                clones_file, clones_file, clones_file )
 run(cmd)
 
 ## analyze intra-subject privacy
-cmd = 'python {}/analyze_epitope_privacy.py {} {} --organism {} --clones_file {} --all_chains AB --nrepeat 1000 --tree_height_inches 5.0 --nbrdist_percentile 10 > {}_aep.log 2> {}_aep.err'\
+cmd = 'python2 {}/analyze_epitope_privacy.py {} {} --organism {} --clones_file {} --all_chains AB --nrepeat 1000 --tree_height_inches 5.0 --nbrdist_percentile 10 > {}_aep.log 2> {}_aep.err'\
       .format( path_to_scripts, constant_seed_args, distance_params_args, organism,
                clones_file, clones_file, clones_file )
 run(cmd)
@@ -396,7 +396,7 @@ if 1: #force or not motifs_files:
                      if my_seed_threshold_for_motifs else ''
 
 
-        cmd = 'python {}/find_cdr3_motifs.py {} --organism {} {} --clones_file {} --min_count {} --epitopes {} {} {} --verbose --big --nsamples {} --max_motif_len {} --max_ng_lines {} > {} 2> {}'\
+        cmd = 'python2 {}/find_cdr3_motifs.py {} --organism {} {} --clones_file {} --min_count {} --epitopes {} {} {} --verbose --big --nsamples {} --max_motif_len {} --max_ng_lines {} > {} 2> {}'\
             .format( path_to_scripts, constant_seed_args, organism, extra_args, clones_file, min_count, ep,
                      ' --nofilter '*nofilter,
                      ' --force_random_len '*fixlen,
@@ -435,19 +435,19 @@ if 1: #force or not motifs_files:
 
 extra_args = ' --min_chi_squared 30 --min_top_chi_squared 30 ' if borderline_motifs else ''
 
-cmd = 'python {}/read_motifs.py {} {} --junction_bars --max_ng_lines {} --organism {} --clones_file {} > {}_rm.log 2> {}_rm.err'\
+cmd = 'python2 {}/read_motifs.py {} {} --junction_bars --max_ng_lines {} --organism {} --clones_file {} > {}_rm.log 2> {}_rm.err'\
       .format( path_to_scripts, extra_args, constant_seed_args, max_ng_lines, organism,
                clones_file, clones_file, clones_file )
 run(cmd)
 
 ## make kpca landscape plots
-cmd = 'python {}/make_kpca_plots.py --organism {} --clones_file {} --showmotifs > {}_kpca.log 2> {}_kpca.err'\
+cmd = 'python2 {}/make_kpca_plots.py --organism {} --clones_file {} --showmotifs > {}_kpca.log 2> {}_kpca.err'\
     .format( path_to_scripts, organism, clones_file, clones_file, clones_file )
 run(cmd)
 
 
 ## make a summary table
-cmd = 'python {}/make_summary_table.py --clones_file {} > {}_mst.log 2> {}_mst.err'\
+cmd = 'python2 {}/make_summary_table.py --clones_file {} > {}_mst.log 2> {}_mst.err'\
       .format( path_to_scripts, clones_file, clones_file, clones_file )
 run(cmd)
 
@@ -459,7 +459,7 @@ assert exists( summary_table_file ) and exists( cdr3_table_file )
 ## make a bunch of trees
 tree_files = glob('{}_tree_AB_*png'.format(clones_file[:-4]))
 if force or not tree_files or extra_make_really_tall_trees_args:
-    cmd = 'python {}/make_really_tall_trees.py {} {} --organism {} --clones_file {} > {}_mrtt.log 2> {}_mrtt.err'\
+    cmd = 'python2 {}/make_really_tall_trees.py {} {} --organism {} --clones_file {} > {}_mrtt.log 2> {}_mrtt.err'\
         .format( path_to_scripts, constant_seed_args,
                  extra_make_really_tall_trees_args if extra_make_really_tall_trees_args else ' ',
                  organism, clones_file, clones_file, clones_file )
